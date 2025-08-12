@@ -1,33 +1,27 @@
 import React from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useParams } from 'react-router-dom';
 import { HomePage } from './components/HomePage';
 import { CanvasEditor } from './components/CanvasEditor';
 
+const CanvasRoute: React.FC = () => {
+  const { id } = useParams<{ id: string }>();
+  
+  if (!id) {
+    return <div>Invalid canvas ID</div>;
+  }
+  
+  return <CanvasEditor sceneId={id} />;
+};
+
 function App() {
   return (
-    <BrowserRouter>
+    <Router>
       <Routes>
         <Route path="/" element={<HomePage />} />
-        <Route 
-          path="/canvas/:canvasId" 
-          element={<CanvasRoute />} 
-        />
-        <Route path="*" element={<Navigate to="/" replace />} />
+        <Route path="/canvas/:id" element={<CanvasRoute />} />
       </Routes>
-    </BrowserRouter>
+    </Router>
   );
-}
-
-function CanvasRoute() {
-  const canvasId = window.location.pathname.split('/canvas/')[1];
-  const urlParams = new URLSearchParams(window.location.search);
-  const viewOnly = urlParams.get('viewOnly') === 'true';
-
-  if (!canvasId) {
-    return <Navigate to="/" replace />;
-  }
-
-  return <CanvasEditor canvasId={canvasId} viewOnly={viewOnly} />;
 }
 
 export default App;

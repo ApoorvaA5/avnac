@@ -1,30 +1,21 @@
 export interface CanvasObject {
-  id: string;
-  type: 'rect' | 'circle' | 'text' | 'path';
+  type: string;
   left: number;
   top: number;
   width?: number;
   height?: number;
   radius?: number;
-  fill?: string;
+  fill: string;
   stroke?: string;
   strokeWidth?: number;
   text?: string;
   fontSize?: number;
   fontFamily?: string;
-  path?: string;
-  scaleX?: number;
-  scaleY?: number;
-  angle?: number;
 }
 
-export interface CanvasState {
+export interface Scene {
   id: string;
   objects: CanvasObject[];
-  background?: string;
-  width: number;
-  height: number;
-  updatedAt: number;
+  background: string;
+  lastModified: number;
 }
-
-export type Tool = 'select' | 'rect' | 'circle' | 'text' | 'pen';

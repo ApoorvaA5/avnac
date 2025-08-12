@@ -1,122 +1,130 @@
 import React from 'react';
-import {
-  MousePointer,
-  Square,
-  Circle,
-  Type,
-  Pen,
-  Trash2,
-  Download,
-  Share2
+import { 
+  Square, 
+  Circle, 
+  Type, 
+  PenTool, 
+  Trash2, 
+  Palette,
+  Share2,
+  RotateCw
 } from 'lucide-react';
-import { Tool } from '../types/canvas';
 
 interface ToolbarProps {
-  currentTool: Tool;
-  onToolChange: (tool: Tool) => void;
   onAddRectangle: () => void;
   onAddCircle: () => void;
   onAddText: () => void;
+  onTogglePen: () => void;
   onDeleteSelected: () => void;
-  onExport: (format?: 'png' | 'svg') => void;
+  onChangeColor: (color: string) => void;
   onShare: () => void;
-  hasSelectedObject: boolean;
+  selectedColor: string;
+  isDrawingMode: boolean;
 }
 
-export function Toolbar({
-  currentTool,
-  onToolChange,
+const colors = [
+  '#000000', '#ff4444', '#44ff44', '#4444ff',
+  '#ffff44', '#ff44ff', '#44ffff', '#ff8844',
+  '#8844ff', '#44ff88'
+];
+
+export const Toolbar: React.FC<ToolbarProps> = ({
   onAddRectangle,
   onAddCircle,
   onAddText,
+  onTogglePen,
   onDeleteSelected,
-  onExport,
+  onChangeColor,
   onShare,
-  hasSelectedObject
-}: ToolbarProps) {
-  const toolButtons = [
-    { tool: 'select' as Tool, icon: MousePointer, label: 'Select' },
-    { tool: 'rect' as Tool, icon: Square, label: 'Rectangle', action: onAddRectangle },
-    { tool: 'circle' as Tool, icon: Circle, label: 'Circle', action: onAddCircle },
-    { tool: 'text' as Tool, icon: Type, label: 'Text', action: onAddText }
-  ];
-
+  selectedColor,
+  isDrawingMode
+}) => {
   return (
-    <div className="bg-white border-b border-gray-200 px-6 py-4">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-2">
-          <h1 className="text-xl font-semibold text-gray-800 mr-6">Canvas Editor</h1>
+    <div className="bg-white border-b border-gray-200 p-4">
+      <div className="flex items-center gap-4 flex-wrap">
+        <div className="flex items-center gap-2">
+          <button
+            onClick={onAddRectangle}
+            className="flex items-center gap-2 px-3 py-2 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-700 transition-colors"
+            title="Add Rectangle"
+          >
+            <Square size={18} />
+            <span className="text-sm font-medium">Rectangle</span>
+          </button>
           
-          <div className="flex items-center space-x-1 bg-gray-100 rounded-lg p-1">
-            {toolButtons.map(({ tool, icon: Icon, label, action }) => (
+          <button
+            onClick={onAddCircle}
+            className="flex items-center gap-2 px-3 py-2 rounded-lg bg-green-50 hover:bg-green-100 text-green-700 transition-colors"
+            title="Add Circle"
+          >
+            <Circle size={18} />
+            <span className="text-sm font-medium">Circle</span>
+          </button>
+          
+          <button
+            onClick={onAddText}
+            className="flex items-center gap-2 px-3 py-2 rounded-lg bg-purple-50 hover:bg-purple-100 text-purple-700 transition-colors"
+            title="Add Text"
+          >
+            <Type size={18} />
+            <span className="text-sm font-medium">Text</span>
+          </button>
+          
+          <button
+            onClick={onTogglePen}
+            className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-colors ${
+              isDrawingMode 
+                ? 'bg-orange-100 text-orange-700 border-2 border-orange-300' 
+                : 'bg-orange-50 hover:bg-orange-100 text-orange-700'
+            }`}
+            title="Pen Tool"
+          >
+            <PenTool size={18} />
+            <span className="text-sm font-medium">Pen</span>
+          </button>
+        </div>
+
+        <div className="w-px h-8 bg-gray-300"></div>
+
+        <div className="flex items-center gap-2">
+          <Palette size={18} className="text-gray-600" />
+          <div className="flex gap-1">
+            {colors.map((color) => (
               <button
-                key={tool}
-                onClick={() => {
-                  onToolChange(tool);
-                  action?.();
-                }}
-                className={`flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                  currentTool === tool
-                    ? 'bg-blue-600 text-white'
-                    : 'text-gray-700 hover:bg-gray-200'
+                key={color}
+                onClick={() => onChangeColor(color)}
+                className={`w-8 h-8 rounded border-2 transition-all hover:scale-110 ${
+                  selectedColor === color ? 'border-gray-800' : 'border-gray-300'
                 }`}
-                title={label}
-              >
-                <Icon size={16} />
-                <span className="hidden sm:block">{label}</span>
-              </button>
+                style={{ backgroundColor: color }}
+                title={`Color: ${color}`}
+              />
             ))}
           </div>
         </div>
 
-        <div className="flex items-center space-x-2">
-          <button
-            onClick={onDeleteSelected}
-            disabled={!hasSelectedObject}
-            className={`flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-              hasSelectedObject
-                ? 'text-red-700 hover:bg-red-50 border border-red-200'
-                : 'text-gray-400 cursor-not-allowed'
-            }`}
-            title="Delete Selected"
-          >
-            <Trash2 size={16} />
-            <span className="hidden sm:block">Delete</span>
-          </button>
+        <div className="w-px h-8 bg-gray-300"></div>
 
-          <div className="relative group">
-            <button
-              className="flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-100 border border-gray-200 transition-colors"
-              title="Export Canvas"
-            >
-              <Download size={16} />
-              <span className="hidden sm:block">Export</span>
-            </button>
-            <div className="absolute right-0 top-full mt-1 w-32 bg-white border border-gray-200 rounded-md shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-10">
-              <button
-                onClick={() => onExport('png')}
-                className="block w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100"
-              >
-                Export PNG
-              </button>
-              <button
-                onClick={() => onExport('svg')}
-                className="block w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100"
-              >
-                Export SVG
-              </button>
-            </div>
-          </div>
+        <button
+          onClick={onDeleteSelected}
+          className="flex items-center gap-2 px-3 py-2 rounded-lg bg-red-50 hover:bg-red-100 text-red-700 transition-colors"
+          title="Delete Selected"
+        >
+          <Trash2 size={18} />
+          <span className="text-sm font-medium">Delete</span>
+        </button>
 
+        <div className="ml-auto">
           <button
             onClick={onShare}
-            className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-md text-sm font-medium hover:bg-blue-700 transition-colors"
+            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white transition-colors font-medium"
+            title="Share Canvas"
           >
-            <Share2 size={16} />
-            <span className="hidden sm:block">Share</span>
+            <Share2 size={18} />
+            Share Canvas
           </button>
         </div>
       </div>
     </div>
   );
-}
+};
